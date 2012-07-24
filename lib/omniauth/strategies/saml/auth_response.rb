@@ -12,6 +12,9 @@ module OmniAuth
         attr_accessor :options, :response, :document, :settings
 
         def initialize(response, options = {})
+
+          puts "omniauth:authresponse:initialize"
+
           raise ArgumentError.new("Response cannot be nil") if response.nil?
           self.options  = options
           self.response = response

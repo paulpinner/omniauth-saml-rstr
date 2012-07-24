@@ -18,8 +18,12 @@ module OmniAuth
 
       def callback_phase
         begin
+
+          puts "omniauth:callback_phase: callback??"
+
           response = OmniAuth::Strategies::SAML::AuthResponse.new(request.params['SAMLResponse'])
           response.settings = options
+          puts response.inspect
 
           @name_id  = response.name_id
           @attributes = response.attributes
