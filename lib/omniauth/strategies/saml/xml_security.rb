@@ -45,6 +45,8 @@ module OmniAuth
             begin
             self.xml = Nokogiri::XML::Document.parse(response)
             self.xml.remove_namespaces!()
+            puts "nameidenitifier = " + @xml.css("RequestedSecurityToken Assertion Subject NameIdentifier").text.strip!
+
             rescue Exception => e
               puts e.message
             end
@@ -52,7 +54,10 @@ module OmniAuth
           end
 
           def name_identifier
+            puts "name identifier"
+            puts @xml.inspect
             @xml.css("RequestedSecurityToken Assertion Subject NameIdentifier").text.strip!
+
           end
         end
 
