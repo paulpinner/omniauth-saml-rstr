@@ -20,13 +20,8 @@ module OmniAuth
       def callback_phase
         begin
 
-          puts "omniauth:callback_phase: callback??"
-          puts "inspect request"
-          puts request.inspect
-
-          response = OmniAuth::Strategies::SAML::AuthResponse.new(request.params['SAMLResponse'])
+          response = OmniAuth::Strategies::SAML::AuthResponse.new(request.params['wresult'])
           response.settings = options
-          puts response.inspect
 
           @name_id  = response.name_id
           @attributes = response.attributes
@@ -42,10 +37,7 @@ module OmniAuth
 
       info do
         {
-          :name  => @attributes[:name],
-          :email => @attributes[:email] || @attributes[:mail],
-          :first_name => @attributes[:first_name] || @attributes[:firstname],
-          :last_name => @attributes[:last_name] || @attributes[:lastname]
+          :name  => @name_id
         }
       end
 
