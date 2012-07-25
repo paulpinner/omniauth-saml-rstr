@@ -16,8 +16,10 @@ module OmniAuth
           self.options  = options
           self.response = response
           #have this be a nokogiri xml document for now.
-          #@todo revisist the security validation
-          self.security_token_content = OmniAuth::Strategies::SAML::XMLSecurity::SecurityTokenResponseContent.new(Base64.decode64(response))
+          #@todo revisit the security certificate validation
+          puts "AuthResponse::initialize"
+          puts "response = " + response
+          self.security_token_content = OmniAuth::Strategies::SAML::XMLSecurity::SecurityTokenResponseContent.new(response)
         end
 
         def valid?

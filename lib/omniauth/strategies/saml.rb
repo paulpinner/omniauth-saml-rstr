@@ -19,11 +19,14 @@ module OmniAuth
 
       def callback_phase
         begin
-
+          puts "request---->"
+          puts request.inspect
+          puts "request.wresult:::::---->"
+          puts request.params['wresult']
           response = OmniAuth::Strategies::SAML::AuthResponse.new(request.params['wresult'])
           response.settings = options
-
           @name_id  = response.name_id
+          puts "name id = " + response.name_id
           @attributes = response.attributes
 
           return fail!(:invalid_ticket, 'Invalid SAML Ticket') if @name_id.nil? || @name_id.empty? || !response.valid?
