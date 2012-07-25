@@ -20,8 +20,10 @@ module OmniAuth
       def callback_phase
         begin
 
-            puts "request---->"
+          puts "request---->"
           puts request.inspect
+          puts "request.wresult:::::---->"
+          puts request.params['wresult']
           response = OmniAuth::Strategies::SAML::AuthResponse.new(request.params['wresult'])
           response.settings = options
           @name_id  = response.name_id

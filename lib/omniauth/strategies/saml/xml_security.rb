@@ -42,8 +42,13 @@ module OmniAuth
 
           def initialize(response)
             # puts "init - response = " + response
+            begin
             self.xml = Nokogiri::XML::Document.parse(response)
             self.xml.remove_namespaces!()
+            rescue Exception => e
+              puts e.message
+            end
+
           end
 
           def name_identifier
