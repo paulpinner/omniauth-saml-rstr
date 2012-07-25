@@ -9,16 +9,15 @@ module OmniAuth
         PROTOCOL  = "urn:oasis:names:tc:SAML:2.0:protocol"
         DSIG      = "http://www.w3.org/2000/09/xmldsig#"
 
-        attr_accessor :options, :response, :document, :settings
+        attr_accessor :options, :response, :security_token_content, :settings
 
         def initialize(response, options = {})
-
-          puts "omniauth:authresponse:initialize"
-
           raise ArgumentError.new("Response cannot be nil") if response.nil?
           self.options  = options
           self.response = response
-          self.document = OmniAuth::Strategies::SAML::XMLSecurity::SignedDocument.new(Base64.decode64(response))
+          #have this be a nokogiri xml document for now.
+          #@todo revisist the security validation
+          self.security_token_content = OmniAuth::Strategies::SAML::XMLSecurity::SecurityTokenResponseContent.new(Base64.decode64(response))
         end
 
         def valid?
@@ -31,43 +30,27 @@ module OmniAuth
 
         # The value of the user identifier as designated by the initialization request response
         def name_id
-          @name_id ||= begin
-            node = xpath("/p:Response/a:Assertion[@ID='#{signed_element_id}']/a:Subject/a:NameID")
-            node ||=  xpath("/p:Response[@ID='#{signed_element_id}']/a:Assertion/a:Subject/a:NameID")
-            node.nil? ? nil : strip(node.text)
-          end
+          @security_token_content.name_identifier
         end
 
         # A hash of all the attributes with the response. Assuming there is only one value for each key
         def attributes
-          @attr_statements ||= begin
-            stmt_element = xpath("/p:Response/a:Assertion/a:AttributeStatement")
-            return {} if stmt_element.nil?
-
-            {}.tap do |result|
-              stmt_element.elements.each do |attr_element|
-                name  = attr_element.attributes["Name"]
-                value = strip(attr_element.elements.first.text)
-
-                result[name] = result[name.to_sym] =  value
-              end
-            end
-          end
+          { :userEmailID => @security_token_content.name_identifier}
         end
 
         # When this user session should expire at latest
         def session_expires_at
-          @expires_at ||= begin
-            node = xpath("/p:Response/a:Assertion/a:AuthnStatement")
-            parse_time(node, "SessionNotOnOrAfter")
-          end
+          # @expires_at ||= begin
+          #   node = xpath("/p:Response/a:Assertion/a:AuthnStatement")
+          #   parse_time(node, "SessionNotOnOrAfter")
+          # end
         end
 
         # Conditions (if any) for the assertion to run
         def conditions
-          @conditions ||= begin
-            xpath("/p:Response/a:Assertion[@ID='#{signed_element_id}']/a:Conditions")
-          end
+          # @conditions ||= begin
+          #   xpath("/p:Response/a:Assertion[@ID='#{signed_element_id}']/a:Conditions")
+          # end
         end
 
         private
@@ -78,8 +61,8 @@ module OmniAuth
 
         def validate(soft = true)
           validate_response_state(soft) &&
-          validate_conditions(soft)     &&
-          document.validate(get_fingerprint, soft)
+          validate_conditions(soft)
+            # document.validate(get_fingerprint, soft)
         end
 
         def validate_response_state(soft = true)
@@ -99,37 +82,37 @@ module OmniAuth
         end
 
         def get_fingerprint
-          if settings.idp_cert
-            cert = OpenSSL::X509::Certificate.new(settings.idp_cert.gsub(/^ +/, ''))
-            Digest::SHA1.hexdigest(cert.to_der).upcase.scan(/../).join(":")
-          else
-            settings.idp_cert_fingerprint
-          end
+          # if settings.idp_cert
+          #   cert = OpenSSL::X509::Certificate.new(settings.idp_cert.gsub(/^ +/, ''))
+          #   Digest::SHA1.hexdigest(cert.to_der).upcase.scan(/../).join(":")
+          # else
+          #   settings.idp_cert_fingerprint
+          # end
         end
 
         def validate_conditions(soft = true)
-          return true if conditions.nil?
-          return true if options[:skip_conditions]
+          # return true if conditions.nil?
+          # return true if options[:skip_conditions]
 
-          if not_before = parse_time(conditions, "NotBefore")
-            if Time.now.utc < not_before
-              return soft ? false : validation_error("Current time is earlier than NotBefore condition")
-            end
-          end
+          # if not_before = parse_time(conditions, "NotBefore")
+          #   if Time.now.utc < not_before
+          #     return soft ? false : validation_error("Current time is earlier than NotBefore condition")
+          #   end
+          # end
 
-          if not_on_or_after = parse_time(conditions, "NotOnOrAfter")
-            if Time.now.utc >= not_on_or_after
-              return soft ? false : validation_error("Current time is on or after NotOnOrAfter condition")
-            end
-          end
-
+          # if not_on_or_after = parse_time(conditions, "NotOnOrAfter")
+          #   if Time.now.utc >= not_on_or_after
+          #     return soft ? false : validation_error("Current time is on or after NotOnOrAfter condition")
+          #   end
+          # end
+          # true
           true
         end
 
         def parse_time(node, attribute)
-          if node && node.attributes[attribute]
-            Time.parse(node.attributes[attribute])
-          end
+          # if node && node.attributes[attribute]
+          #   Time.parse(node.attributes[attribute])
+          # end
         end
 
         def strip(string)
