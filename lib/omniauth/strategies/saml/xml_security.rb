@@ -41,23 +41,12 @@ module OmniAuth
           attr_accessor :name_identifier, :xml
 
           def initialize(response)
-            # puts "init - response = " + response
-            begin
             self.xml = Nokogiri::XML::Document.parse(response)
             self.xml.remove_namespaces!()
-            puts "nameidenitifier = " + @xml.css("RequestedSecurityToken Assertion Subject NameIdentifier").text.strip!
-
-            rescue Exception => e
-              puts e.message
-            end
-
           end
 
           def name_identifier
-            puts "name identifier"
-            puts @xml.inspect
-            @xml.css("RequestedSecurityToken Assertion Subject NameIdentifier").text.strip!
-
+            @xml.css("NameIdentifier").text
           end
         end
 
