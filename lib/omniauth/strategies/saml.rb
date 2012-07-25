@@ -4,6 +4,7 @@ module OmniAuth
   module Strategies
     class SAML
       include OmniAuth::Strategy
+
       autoload :AuthRequest,      'omniauth/strategies/saml/auth_request'
       autoload :AuthResponse,     'omniauth/strategies/saml/auth_response'
       autoload :ValidationError,  'omniauth/strategies/saml/validation_error'
@@ -20,6 +21,7 @@ module OmniAuth
         begin
 
           puts "omniauth:callback_phase: callback??"
+          puts "inspect request"
           puts request.inspect
 
           response = OmniAuth::Strategies::SAML::AuthResponse.new(request.params['SAMLResponse'])
