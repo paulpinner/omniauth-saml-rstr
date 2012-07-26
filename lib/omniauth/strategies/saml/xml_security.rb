@@ -38,15 +38,27 @@ module OmniAuth
 
         class SecurityTokenResponseContent
 
-          attr_accessor :name_identifier, :xml
+          attr_accessor :name_identifier, :xml, :name_identifier_test
 
           def initialize(response)
-            self.xml = Nokogiri::XML::Document.parse(response)
-            self.xml.remove_namespaces!()
+            self.xml = Nokogiri::XML::Document.parse(response).remove_namespaces!()
+            name_identifier_test
           end
 
           def name_identifier
             @xml.css("NameIdentifier").text
+          end
+
+          def name_identifier_test
+            puts "nameidentifiertest<------"
+            puts "t:RequestSecurityTokenResponse = " + @xml.css("t:RequestSecurityTokenResponse").text
+            puts "RequestSecurityTokenResponse = " + @xml.css("RequestSecurityTokenResponse").text
+            puts "RequestSecurityTokenResponse = " + @xml.css("RequestSecurityTokenResponse").text
+            puts "* = " + @xml.css("*").text
+            puts "@xml.children.first.children.size = " + @xml.children.first.children.size.to_s
+          puts "RequestSecurityTokenResponse RequestedSecurityToken Assertion = " + @xml.css("RequestSecurityTokenResponse RequestedSecurityToken Assertion").text
+          puts "t:RequestSecurityTokenResponse t:RequestedSecurityToken saml:Assertion = " + @xml.css("t:RequestSecurityTokenResponse t:RequestedSecurityToken saml:Assertion").text
+          puts "RequestSecurityTokenResponse RequestedSecurityToken Assertion = " + @xml.css("RequestSecurityTokenResponse RequestedSecurityToken Assertion").text
           end
         end
 
