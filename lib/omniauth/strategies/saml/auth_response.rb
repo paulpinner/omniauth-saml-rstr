@@ -19,7 +19,7 @@ module OmniAuth
           #@todo revisit the security certificate validation
           puts "AuthResponse::initialize"
           puts "response = " + response
-          self.security_token_content = OmniAuth::Strategies::SAML::XMLSecurity::SecurityTokenResponseContent.new(Base64.decode64(response))
+          self.security_token_content = OmniAuth::Strategies::SAML::XMLSecurity::SecurityTokenResponseContent.new(response)
         end
 
         def valid?
