@@ -41,7 +41,11 @@ module OmniAuth
           attr_accessor :name_identifier, :xml, :name_identifier_test
 
           def initialize(response)
+            puts "SecurityTokenResponseContent : response = " + response
             self.xml = Nokogiri::XML::Document.parse(response).remove_namespaces!()
+            puts "---------"
+            puts self.xml
+            puts "---------"
             name_identifier_test
           end
 
