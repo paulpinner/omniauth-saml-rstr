@@ -19,7 +19,7 @@
 #
 # $Id: xml_sec.rb,v 1.6 2007/10/24 00:28:41 todddd Exp $
 #
-# Copyright 2007 Sun Microsystems Inc. All Rights Reserved
+# Copyright 2007 Sun Microsystems Inc. All Rights responseerved
 # Portions Copyrighted 2007 Todd W Saxton.
 
 require 'rubygems'
@@ -38,33 +38,55 @@ module OmniAuth
 
         class SecurityTokenResponseContent
 
-          attr_accessor :name_identifier, :xml, :name_identifier_test
+          attr_accessor :name_identifier, :xml, :name_identifier_test, :x509_cert, :conditions_not_on_or_after, :conditions_before
 
           def initialize(response)
             puts "SecurityTokenResponseContent : response = " + response
             self.xml = Nokogiri::XML::Document.parse(response).remove_namespaces!()
-            puts "---------"
-            puts self.xml
-            puts "---------"
-            name_identifier_test
+          end
+
+          def x509_cert
+            @xml.css("X509Certificate").text
+          end
+
+          def conditions_before
+            if !conditions.nil?
+              conditions.attribute("NotBefore").value
+            end
+          end
+
+          def conditions_not_on_or_after
+            if !conditions.nil?
+              conditions.attribute("NotOnOrAfter").value
+            end
           end
 
           def name_identifier
             @xml.css("NameIdentifier").text
           end
 
-          def name_identifier_test
-            puts "nameidentifiertest<------"
-            puts "t:RequestSecurityTokenResponse = " + @xml.css("t:RequestSecurityTokenResponse").text
-            puts "RequestSecurityTokenResponse = " + @xml.css("RequestSecurityTokenResponse").text
-            puts "RequestSecurityTokenResponse = " + @xml.css("RequestSecurityTokenResponse").text
-            puts "* = " + @xml.css("*").text
-            puts "@xml.children.first.children.size = " + @xml.children.first.children.size.to_s
-          puts "RequestSecurityTokenResponse RequestedSecurityToken Assertion = " + @xml.css("RequestSecurityTokenResponse RequestedSecurityToken Assertion").text
-          puts "t:RequestSecurityTokenResponse t:RequestedSecurityToken saml:Assertion = " + @xml.css("t:RequestSecurityTokenResponse t:RequestedSecurityToken saml:Assertion").text
-          puts "RequestSecurityTokenResponse RequestedSecurityToken Assertion = " + @xml.css("RequestSecurityTokenResponse RequestedSecurityToken Assertion").text
+          def validate(idp_cert_fingerprint, idp_cert=null, soft=true )
+            if idp_cert
+              decoded_cert_text = Base64.decode64(idp_cert)
+            else
+              decoded_cert_text = Base64.decode64(self.x509_cert)
+            end
+            certificate = OpenSSL::X509::Certificate.new(cert_text)
+            fingerprint = Digest::SHA1.hexdigest(cert.to_der)
+            if !fingerprint == idp_cert_fingerprint.gsub(/[^a-zA-Z0-9]/,"").downcase
+               raise OmniAuth::Strategies::SAML::ValidationError.new("Key validation error")
+            end
+            return true
           end
-        end
+
+
+          private
+
+          def conditions
+            @xml.css("Conditions")
+          end
+
+          end
 
       end
 
