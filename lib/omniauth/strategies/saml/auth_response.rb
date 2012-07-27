@@ -15,11 +15,8 @@ module OmniAuth
           raise ArgumentError.new("Response cannot be nil") if response.nil?
           self.options  = options
           self.response = response
-          #have this be a nokogiri xml document for now.
-          #@todo revisit the security certificate validation
-          puts "AuthResponse::initialize"
-          puts "response = " + response
           self.security_token_content = OmniAuth::Strategies::SAML::XMLSecurity::SecurityTokenResponseContent.new(response)
+          validate(soft = true)
         end
 
         def valid?
@@ -42,17 +39,19 @@ module OmniAuth
 
         # When this user session should expire at latest
         def session_expires_at
-          # @expires_at ||= begin
-          #   node = xpath("/p:Response/a:Assertion/a:AuthnStatement")
-          #   parse_time(node, "SessionNotOnOrAfter")
-          # end
+           @expires_at ||= begin
+             parse_time(self.security_token_content.conditions_not_on_or_after)
+           end
         end
 
         # Conditions (if any) for the assertion to run
         def conditions
-          # @conditions ||= begin
-          #   xpath("/p:Response/a:Assertion[@ID='#{signed_element_id}']/a:Conditions")
-          # end
+          @conditions ||= begin
+             {
+              :before =>  self.security_token_content.conditions_before,
+              :not_on_or_after => self.security_token_content.conditions_not_on_or_after
+             }
+          end
         end
 
         private
@@ -63,9 +62,11 @@ module OmniAuth
 
         def validate(soft = true)
           validate_response_state(soft) &&
-          validate_conditions(soft)
-            # document.validate(get_fingerprint, soft)
+          validate_conditions(soft)     &&
+          document.validate(get_fingerprint, soft, get_cert)
         end
+
+
 
         def validate_response_state(soft = true)
           if response.empty?
@@ -79,42 +80,43 @@ module OmniAuth
           if settings.idp_cert_fingerprint.nil? && settings.idp_cert.nil?
             return soft ? false : validation_error("No fingerprint or certificate on settings")
           end
-
           true
         end
 
+
+
+
+
         def get_fingerprint
-          # if settings.idp_cert
-          #   cert = OpenSSL::X509::Certificate.new(settings.idp_cert.gsub(/^ +/, ''))
-          #   Digest::SHA1.hexdigest(cert.to_der).upcase.scan(/../).join(":")
-          # else
-          #   settings.idp_cert_fingerprint
-          # end
+          if settings.idp_cert
+            cert = OpenSSL::X509::Certificate.new(settings.idp_cert.gsub(/^ +/, ''))
+            Digest::SHA1.hexdigest(cert.to_der).upcase.scan(/../).join(":")
+          else
+            settings.idp_cert_fingerprint
+          end
         end
 
         def validate_conditions(soft = true)
-          # return true if conditions.nil?
-          # return true if options[:skip_conditions]
+          return true if conditions.nil?
+          return true if options[:skip_conditions]
 
-          # if not_before = parse_time(conditions, "NotBefore")
-          #   if Time.now.utc < not_before
-          #     return soft ? false : validation_error("Current time is earlier than NotBefore condition")
-          #   end
-          # end
+          if not_before = parse_time(document.conditions_before)
+            if Time.now.utc < not_before
+              return soft ? false : validation_error("Current time is earlier than NotBefore condition")
+            end
+          end
 
-          # if not_on_or_after = parse_time(conditions, "NotOnOrAfter")
-          #   if Time.now.utc >= not_on_or_after
-          #     return soft ? false : validation_error("Current time is on or after NotOnOrAfter condition")
-          #   end
-          # end
-          # true
+          if not_on_or_after = parse_time(document.conditions_not_on_or_after)
+            if Time.now.utc >= not_on_or_after
+              return soft ? false : validation_error("Current time is on or after NotOnOrAfter condition")
+            end
+          end
+
           true
         end
 
-        def parse_time(node, attribute)
-          # if node && node.attributes[attribute]
-          #   Time.parse(node.attributes[attribute])
-          # end
+        def parse_time(attribute)
+            Time.parse(attribute)
         end
 
         def strip(string)
