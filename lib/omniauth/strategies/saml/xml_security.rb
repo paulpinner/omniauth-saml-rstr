@@ -38,15 +38,39 @@ module OmniAuth
 
         class SecurityTokenResponseContent
 
-          attr_accessor :name_identifier, :xml, :name_identifier_test, :x509_cert, :conditions_not_on_or_after, :conditions_before
+          DSIG      = "http://www.w3.org/2000/09/xmldsig#"
+          SAML      = "urn:oasis:names:tc:SAML:1.0:assertion"
+          WSP       = "http://schemas.xmlsoap.org/ws/2004/09/policy"
+          WSA       = "http://www.w3.org/2005/08/addressing"
+          WSU       = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+          TRUST     = "http://schemas.xmlsoap.org/ws/2005/02/trust"
+
+          # {"xmlns:wsu"=>
+          #   "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
+          #  "xmlns:t"=>"http://schemas.xmlsoap.org/ws/2005/02/trust",
+          #  "xmlns:wsa"=>"http://www.w3.org/2005/08/addressing",
+          #  "xmlns:wsp"=>"http://schemas.xmlsoap.org/ws/2004/09/policy",
+          #  "xmlns:saml"=>"urn:oasis:names:tc:SAML:1.0:assertion",
+          #  "xmlns:ds"=>"http://www.w3.org/2000/09/xmldsig#",
+          #  "xmlns"=>"http://www.w3.org/2000/09/xmldsig#"}
+
+          attr_accessor :name_identifier, :xml, :xml_unnamespaced, :name_identifier_test, :x509_cert, :conditions_not_on_or_after, :conditions_before, :info_element
 
           def initialize(response)
-            puts "SecurityTokenResponseContent : response = " + response
-            self.xml = Nokogiri::XML::Document.parse(response).remove_namespaces!()
+            self.xml_unnamespaced = Nokogiri::XML::Document.parse(response).remove_namespaces!()
+            self.xml = Nokogiri::XML::Document.parse(response)
           end
 
-          def x509_cert
-            @xml.css("X509Certificate").text
+          def signature
+            @xml.at_xpath("//ds:SignatureValue", {"ds" => DSIG}).text
+          end
+
+          def info_element
+            @xml.at_xpath("//ds:SignedInfo", {"ds" => DSIG}).text
+          end
+
+          def name_identifier
+            @xml_unnamespaced.css("NameIdentifier").text
           end
 
           def conditions_before
@@ -61,11 +85,14 @@ module OmniAuth
             end
           end
 
-          def name_identifier
-            @xml.css("NameIdentifier").text
+          def x509_cert
+            @xml_unnamespaced.css("X509Certificate").text
           end
 
+          #validate the response fingerprint matches the plugin fingerprint
+          #validate the certificate signature matches the signature generated from signing the certificate's SignedInfo node
           def validate(idp_cert_fingerprint, idp_cert=null, soft=true )
+            puts ">>>>"
             if idp_cert
               decoded_cert_text = Base64.decode64(idp_cert)
             else
@@ -74,19 +101,25 @@ module OmniAuth
             certificate = OpenSSL::X509::Certificate.new(cert_text)
             fingerprint = Digest::SHA1.hexdigest(cert.to_der)
             if !fingerprint == idp_cert_fingerprint.gsub(/[^a-zA-Z0-9]/,"").downcase
-               raise OmniAuth::Strategies::SAML::ValidationError.new("Key validation error")
+              raise OmniAuth::Strategies::SAML::ValidationError.new("Key validation error")
             end
-            return true
-          end
+            canon_string =  info_element.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0)
+            sig  = Base64.decode64(signature)
 
+            puts "certificate validation??? " + certificate.public_key.verify(OpenSSL::Digest::SHA256.new, sig, canon_string)
+            if !certificate.public_key.verify(OpenSSL::Digest::SHA256.new, sig, canon_string)
+              raise OmniAuth::Strategies::SAML::ValidationError.new("Signature validation error")
+            end
+
+          end
 
           private
 
           def conditions
-            @xml.css("Conditions")
+            @xml.at_xpath("//saml:Conditions", {"saml" => SAML})
           end
 
-          end
+        end
 
       end
 

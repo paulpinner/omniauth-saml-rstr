@@ -14,5 +14,5 @@ end
 
 def load_xml(filename=:rstr_response)
   filename = File.expand_path(File.join('..', 'support', "#{filename.to_s}.xml"), __FILE__)
-  result = Base64.encode64(IO.read(filename))
+  result = IO.read(filename)
 end
