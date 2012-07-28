@@ -1,7 +1,7 @@
-require File.expand_path('../lib/omniauth-saml/version', __FILE__)
+require File.expand_path('../lib/omniauth-saml-rstr/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.name          = "omniauth-saml"
+  gem.name          = "omniauth-saml-rstr"
   gem.version       = OmniAuth::SAML::VERSION
   gem.summary       = %q{A generic SAML strategy for OmniAuth.}
   gem.description   = %q{A generic SAML strategy for OmniAuth.}
