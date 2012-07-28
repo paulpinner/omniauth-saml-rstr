@@ -7,7 +7,7 @@ RSpec::Matchers.define :fail_with do |message|
 end
 
 def post_xml(xml=:rstr_response)
-  post "/auth/saml/callback", {'wresult' => load_xml(xml)}
+  post "/auth/saml-rstr/callback", {'wresult' => load_xml(xml)}
 end
 
 describe OmniAuth::Strategies::SAML_RSTR, :type => :strategy do
