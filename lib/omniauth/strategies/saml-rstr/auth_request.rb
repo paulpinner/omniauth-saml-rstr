@@ -5,7 +5,7 @@ require "cgi"
 
 module OmniAuth
   module Strategies
-    class SAML
+    class SAML_RSTR
       class AuthRequest
 
         def create(settings, params = {})

@@ -1,6 +1,6 @@
 module OmniAuth
   module Strategies
-    class SAML
+    class SAML_RSTR
       class ValidationError < Exception
       end
     end

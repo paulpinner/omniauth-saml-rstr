@@ -7,16 +7,16 @@ RSpec::Matchers.define :fail_with do |message|
 end
 
 def post_xml(xml=:rstr_response)
-  post "/auth/saml/callback", {'wresult' => load_xml(xml)}
+  post "/auth/saml-rstr/callback", {'wresult' => load_xml(xml)}
 end
 
-describe OmniAuth::Strategies::SAML, :type => :strategy do
+describe OmniAuth::Strategies::SAML_RSTR, :type => :strategy do
   include OmniAuth::Test::StrategyTestCase
 
   let(:auth_hash){ last_request.env['omniauth.auth'] }
   let(:saml_options) do
     {
-      :assertion_consumer_service_url => "http://localhost:3000/auth/saml/callback",
+      :assertion_consumer_service_url => "http://localhost:3000/auth/saml-rstr/callback",
       :issuer                         => "https://saml.issuer.url/issuers/29490",
       :idp_sso_target_url             => "https://idp.sso.target_url/signon/29490",
       :idp_cert_fingerprint           => "E6:87:89:FB:F2:5F:CD:B0:31:32:7E:05:44:84:53:B1:EC:4E:3F:FA",
@@ -25,9 +25,9 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   end
   let(:strategy) { [OmniAuth::Strategies::SAML, saml_options] }
 
-  describe 'GET /auth/saml' do
+  describe 'GET /auth/saml-rstr' do
     before do
-      get '/auth/saml'
+      get '/auth/saml-rstr'
     end
 
     it 'should get authentication page' do
@@ -35,7 +35,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     end
   end
 
-  describe 'POST /auth/saml/callback' do
+  describe 'POST /auth/saml-rstr/callback' do
     subject { last_response }
 
     let(:xml) { :rstr_response }
@@ -62,7 +62,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
     context "when there is no wresult parameter" do
       before :each do
-        post '/auth/saml/callback'
+        post '/auth/saml-rstr/callback'
       end
 
       it { should fail_with(:invalid_ticket) }

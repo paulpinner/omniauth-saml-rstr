@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe OmniAuth::Strategies::SAML::AuthResponse do
+describe OmniAuth::Strategies::SAML_RSTR::AuthResponse do
   let(:xml) { :rstr_response }
   subject { described_class.new(load_xml(xml)) }
 

@@ -32,27 +32,20 @@ require "nokogiri"
 
 module OmniAuth
   module Strategies
-    class SAML
+    class SAML_RSTR
 
       module XMLSecurity
 
         class SecurityTokenResponseContent
 
+
+          #plugging these namespaces in was required in order to get nokogiri to use them. eg @xml.at_xpath("//ds:SignatureValue", {"ds" => DSIG}).text. Any way to avoid this?
           DSIG      = "http://www.w3.org/2000/09/xmldsig#"
           SAML      = "urn:oasis:names:tc:SAML:1.0:assertion"
           WSP       = "http://schemas.xmlsoap.org/ws/2004/09/policy"
           WSA       = "http://www.w3.org/2005/08/addressing"
           WSU       = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
           TRUST     = "http://schemas.xmlsoap.org/ws/2005/02/trust"
-
-          # {"xmlns:wsu"=>
-          #   "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
-          #  "xmlns:t"=>"http://schemas.xmlsoap.org/ws/2005/02/trust",
-          #  "xmlns:wsa"=>"http://www.w3.org/2005/08/addressing",
-          #  "xmlns:wsp"=>"http://schemas.xmlsoap.org/ws/2004/09/policy",
-          #  "xmlns:saml"=>"urn:oasis:names:tc:SAML:1.0:assertion",
-          #  "xmlns:ds"=>"http://www.w3.org/2000/09/xmldsig#",
-          #  "xmlns"=>"http://www.w3.org/2000/09/xmldsig#"}
 
           attr_accessor :name_identifier, :xml, :xml_unnamespaced, :name_identifier_test, :x509_cert, :conditions_not_on_or_after, :conditions_before, :info_element
 
@@ -92,7 +85,6 @@ module OmniAuth
           #validate the response fingerprint matches the plugin fingerprint
           #validate the certificate signature matches the signature generated from signing the certificate's SignedInfo node
           def validate(idp_cert_fingerprint, idp_cert=null, soft=true )
-            puts ">>>>"
             if idp_cert
               decoded_cert_text = Base64.decode64(idp_cert)
             else
@@ -105,8 +97,6 @@ module OmniAuth
             end
             canon_string =  info_element.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0)
             sig  = Base64.decode64(signature)
-
-            puts "certificate validation??? " + certificate.public_key.verify(OpenSSL::Digest::SHA256.new, sig, canon_string)
             if !certificate.public_key.verify(OpenSSL::Digest::SHA256.new, sig, canon_string)
               raise OmniAuth::Strategies::SAML::ValidationError.new("Signature validation error")
             end

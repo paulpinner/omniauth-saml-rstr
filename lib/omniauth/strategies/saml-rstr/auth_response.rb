@@ -2,7 +2,7 @@ require "time"
 
 module OmniAuth
   module Strategies
-    class SAML
+    class SAML_RSTR
       class AuthResponse
 
         ASSERTION = "urn:oasis:names:tc:SAML:2.0:assertion"

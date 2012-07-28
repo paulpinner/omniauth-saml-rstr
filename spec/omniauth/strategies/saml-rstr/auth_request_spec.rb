@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe OmniAuth::Strategies::SAML::AuthRequest do
+describe OmniAuth::Strategies::SAML_RSTR::AuthRequest do
   describe :create do
     let(:url) do
       described_class.new.create(
         {
           :idp_sso_target_url => 'example.com',
-          :assertion_consumer_service_url => 'http://example.com/auth/saml/callback',
+          :assertion_consumer_service_url => 'http://example.com/auth/saml-rstr/callback',
           :issuer => 'This is an issuer',
           :name_identifier_format => 'Some Policy'
         },
@@ -60,7 +60,7 @@ describe OmniAuth::Strategies::SAML::AuthRequest do
       end
 
       it "should contain the callback url in the settings" do
-        root_element.attributes['AssertionConsumerServiceURL'].should == 'http://example.com/auth/saml/callback'
+        root_element.attributes['AssertionConsumerServiceURL'].should == 'http://example.com/auth/saml-rstr/callback'
       end
 
       it "should contain the issuer" do

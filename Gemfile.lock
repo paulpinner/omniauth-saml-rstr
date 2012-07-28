@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    omniauth-saml (0.9.2)
+    omniauth-saml-rstr (0.1.0)
       omniauth (~> 1.0)
       uuid (~> 2.3)
       xmlcanonicalizer (= 0.1.1)
@@ -59,7 +59,7 @@ DEPENDENCIES
   guard (= 1.0.1)
   guard-rspec (= 0.6.0)
   nokogiri
-  omniauth-saml!
+  omniauth-saml-rstr!
   pry
   rack-test (= 0.6.1)
   rspec (= 2.8)
