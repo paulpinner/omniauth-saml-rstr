@@ -13,7 +13,7 @@ module OmniAuth
       option :name_identifier_format, "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
 
       def request_phase
-        request = OmniAuth::Strategies::SAML::AuthRequest.new
+        request = OmniAuth::Strategies::SAML_RSTR::AuthRequest.new
         redirect(request.create(options))
       end
 
