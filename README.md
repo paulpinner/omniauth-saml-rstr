@@ -1,4 +1,4 @@
-# OmniAuth SAML
+# OmniAuth SAML-RSTR
 
 A generic SAML strategy for OmniAuth integration with ADFS 2.0.
 
@@ -7,7 +7,7 @@ https://github.com/highgroove/omniauth-saml-rstr
 ## Requirements
 
 * [OmniAuth](http://www.omniauth.org/) 1.0+
-* nokogiri
+* nokogiri 1.5
 * Ruby 1.9.2
 
 ## Usage
