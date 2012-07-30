@@ -1,6 +1,6 @@
 # OmniAuth SAML-RSTR
 
-A generic SAML strategy for OmniAuth integration with ADFS 2.0.
+An XML & SAML strategy for OmniAuth integration with ADFS 2.0.
 
 https://github.com/highgroove/omniauth-saml-rstr
 
