@@ -60,8 +60,8 @@ module OmniAuth
         end
 
         def validate(soft = true)
-           validate_response_state(soft) &&
-           validate_conditions(soft)     &&
+           # validate_response_state(soft) &&
+           # validate_conditions(soft)     &&
            security_token_content.validate(get_fingerprint, soft)
         end
 
