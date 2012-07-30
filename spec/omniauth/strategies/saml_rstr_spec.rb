@@ -7,7 +7,7 @@ RSpec::Matchers.define :fail_with do |message|
 end
 
 def post_xml(xml=:rstr_response)
-  post "/auth/saml-rstr/callback", {'wresult' => load_xml(xml)}
+  post "/auth/saml_rstr/callback", {'wresult' => load_xml(xml)}
 end
 
 describe OmniAuth::Strategies::SAML_RSTR, :type => :strategy do
@@ -16,18 +16,18 @@ describe OmniAuth::Strategies::SAML_RSTR, :type => :strategy do
   let(:auth_hash){ last_request.env['omniauth.auth'] }
   let(:saml_options) do
     {
-      :assertion_consumer_service_url => "http://localhost:3000/auth/saml-rstr/callback",
+      :assertion_consumer_service_url => "http://localhost:3000/auth/saml_rstr/callback",
       :issuer                         => "https://saml.issuer.url/issuers/29490",
       :idp_sso_target_url             => "https://idp.sso.target_url/signon/29490",
       :idp_cert_fingerprint           => "E6:87:89:FB:F2:5F:CD:B0:31:32:7E:05:44:84:53:B1:EC:4E:3F:FA",
       :name_identifier_format         => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
     }
   end
-  let(:strategy) { [OmniAuth::Strategies::SAML, saml_options] }
+  let(:strategy) { [OmniAuth::Strategies::SAML_RSTR, saml_options] }
 
-  describe 'GET /auth/saml-rstr' do
+  describe 'GET /auth/saml_rstr' do
     before do
-      get '/auth/saml-rstr'
+      get '/auth/saml_rstr'
     end
 
     it 'should get authentication page' do
@@ -35,11 +35,9 @@ describe OmniAuth::Strategies::SAML_RSTR, :type => :strategy do
     end
   end
 
-  describe 'POST /auth/saml-rstr/callback' do
+  describe 'POST /auth/saml_rstr/callback' do
     subject { last_response }
-
     let(:xml) { :rstr_response }
-
     before :each do
       Time.stub(:now).and_return(Time.new(2012, 3, 8, 16, 25, 00, 0))
     end
@@ -62,7 +60,7 @@ describe OmniAuth::Strategies::SAML_RSTR, :type => :strategy do
 
     context "when there is no wresult parameter" do
       before :each do
-        post '/auth/saml-rstr/callback'
+        post '/auth/saml_rstr/callback'
       end
 
       it { should fail_with(:invalid_ticket) }

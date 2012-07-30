@@ -14,17 +14,20 @@ module OmniAuth
 
       def request_phase
         request = OmniAuth::Strategies::SAML_RSTR::AuthRequest.new
-        redirect(request.create(options))
+        req = request.create(options)
+        redirect(req)
       end
 
       def callback_phase
+
         begin
-          response = OmniAuth::Strategies::SAML::AuthResponse.new(request.params['wresult'])
+          response = OmniAuth::Strategies::SAML_RSTR::AuthResponse.new(request.params['wresult'])
+
           response.settings = options
           @name_id  = response.name_id
           @attributes = response.attributes
 
-          return fail!(:invalid_ticket, 'Invalid SAML Ticket') if @name_id.nil? || @name_id.empty? || !response.valid?
+          return fail!(:invalid_ticket, 'Invalid SAML-RSTR Ticket') if @name_id.nil? || @name_id.empty? || !response.valid?
           super
         rescue ArgumentError => e
           fail!(:invalid_ticket, 'Invalid SAML-RSTR Response')
@@ -46,3 +49,4 @@ module OmniAuth
 end
 
 OmniAuth.config.add_camelization 'saml', 'SAML'
+OmniAuth.config.add_camelization 'saml_rstr', 'SAML_RSTR'

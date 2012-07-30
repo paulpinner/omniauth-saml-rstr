@@ -1,6 +1,5 @@
 require 'simplecov'
 SimpleCov.start
-
 require 'omniauth-saml-rstr'
 require 'rack/test'
 require 'rexml/document'

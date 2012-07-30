@@ -38,7 +38,6 @@ module OmniAuth
 
         class SecurityTokenResponseContent
 
-
           #plugging these namespaces in was required in order to get nokogiri to use them. eg @xml.at_xpath("//ds:SignatureValue", {"ds" => DSIG}).text. Any way to avoid this?
           DSIG      = "http://www.w3.org/2000/09/xmldsig#"
           SAML      = "urn:oasis:names:tc:SAML:1.0:assertion"
@@ -84,21 +83,28 @@ module OmniAuth
 
           #validate the response fingerprint matches the plugin fingerprint
           #validate the certificate signature matches the signature generated from signing the certificate's SignedInfo node
-          def validate(idp_cert_fingerprint, idp_cert=null, soft=true )
-            if idp_cert
-              decoded_cert_text = Base64.decode64(idp_cert)
-            else
-              decoded_cert_text = Base64.decode64(self.x509_cert)
-            end
+          def validate(idp_cert_fingerprint, soft = true)
+            # if idp_cert
+            #   decoded_cert_text = Base64.decode64(idp_cert)
+            # else
+            #   decoded_cert_text = Base64.decode64(self.x509_cert)
+            # end
+            puts "cert fingerprint: " + idp_cert_fingerprint
+            # base64_cert = self.elements["//ds:X509Certificate"].text
+            cert_text   = Base64.decode64(x509_cert)
+
             certificate = OpenSSL::X509::Certificate.new(cert_text)
             fingerprint = Digest::SHA1.hexdigest(cert.to_der)
+            
+            # if fingerprint != idp_cert_fingerprint.gsub(/[^a-zA-Z0-9]/,"").downcase
+
             if !fingerprint == idp_cert_fingerprint.gsub(/[^a-zA-Z0-9]/,"").downcase
-              raise OmniAuth::Strategies::SAML::ValidationError.new("Key validation error")
+              raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new("Key validation error")
             end
             canon_string =  info_element.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0)
             sig  = Base64.decode64(signature)
             if !certificate.public_key.verify(OpenSSL::Digest::SHA256.new, sig, canon_string)
-              raise OmniAuth::Strategies::SAML::ValidationError.new("Signature validation error")
+              raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new("Signature validation error")
             end
 
           end
