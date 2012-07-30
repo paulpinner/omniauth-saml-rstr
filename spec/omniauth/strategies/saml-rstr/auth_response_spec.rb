@@ -31,7 +31,5 @@ describe OmniAuth::Strategies::SAML_RSTR::AuthResponse do
   describe :validate! do
     it_should_behave_like 'a validating method', false
   end
-
-
-
+  
 end
