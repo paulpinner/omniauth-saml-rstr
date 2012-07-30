@@ -58,7 +58,7 @@ PLATFORMS
 DEPENDENCIES
   guard (= 1.0.1)
   guard-rspec (= 0.6.0)
-  nokogiri
+  nokogiri (= 1.5.5)
   omniauth-saml-rstr!
   pry
   rack-test (= 0.6.1)

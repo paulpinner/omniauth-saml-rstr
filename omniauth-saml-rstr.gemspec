@@ -19,6 +19,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rspec', '2.8'
   gem.add_development_dependency 'simplecov', '0.6.1'
   gem.add_development_dependency 'rack-test', '0.6.1'
+  gem.add_development_dependency 'nokogiri', '1.5.5'
 
   gem.files         = ['README.md'] + Dir['lib/**/*.rb']
   gem.test_files    = Dir['spec/**/*.rb']
