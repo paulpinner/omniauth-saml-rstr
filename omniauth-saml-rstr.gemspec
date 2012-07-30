@@ -3,11 +3,11 @@ require File.expand_path('../lib/omniauth-saml-rstr/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.name          = "omniauth-saml-rstr"
   gem.version       = OmniAuth::SAML_RSTR::VERSION
-  gem.summary       = %q{A generic SAML strategy for OmniAuth.}
-  gem.description   = %q{A generic SAML strategy for OmniAuth.}
+  gem.summary       = %q{A RequestSecurityTokenResponse for ADFS strategy based on https://github.com/PracticallyGreen/omniauth-saml.}
+  gem.description   = %q{A RequestSecurityTokenResponse for ADFS strategy based on https://github.com/PracticallyGreen/omniauth-saml.}
 
-  gem.authors       = ["Raecoo Cao", "Ryan Wilcox", "Rajiv Aaron Manglani", "Steven Anderson"]
-  gem.email         = "rajiv@alum.mit.edu"
+  gem.authors       = ["Josh Skeen"]
+  gem.email         = "josh@highgroove.com"
   gem.homepage      = "https://github.com/mutexkid/omniauth-saml-rstr"
 
   gem.add_runtime_dependency 'omniauth', '~> 1.0'

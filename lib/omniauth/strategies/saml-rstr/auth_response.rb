@@ -15,8 +15,7 @@ module OmniAuth
           raise ArgumentError.new("Response cannot be nil") if response.nil?
           self.options  = options
           self.response = response
-          self.security_token_content = OmniAuth::Strategies::SAML::XMLSecurity::SecurityTokenResponseContent.new(response)
-          validate(soft = true)
+          self.security_token_content = OmniAuth::Strategies::SAML_RSTR::XMLSecurity::SecurityTokenResponseContent.new(response)
         end
 
         def valid?
@@ -57,16 +56,14 @@ module OmniAuth
         private
 
         def validation_error(message)
-          raise OmniAuth::Strategies::SAML::ValidationError.new(message)
+          raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new(message)
         end
 
         def validate(soft = true)
-          validate_response_state(soft) &&
-          validate_conditions(soft)     &&
-          document.validate(get_fingerprint, soft, get_cert)
+           validate_response_state(soft) &&
+           validate_conditions(soft)     &&
+           security_token_content.validate(get_fingerprint, soft)
         end
-
-
 
         def validate_response_state(soft = true)
           if response.empty?
@@ -83,10 +80,6 @@ module OmniAuth
           true
         end
 
-
-
-
-
         def get_fingerprint
           if settings.idp_cert
             cert = OpenSSL::X509::Certificate.new(settings.idp_cert.gsub(/^ +/, ''))
@@ -100,13 +93,13 @@ module OmniAuth
           return true if conditions.nil?
           return true if options[:skip_conditions]
 
-          if not_before = parse_time(document.conditions_before)
+          if not_before = parse_time(security_token_content.conditions_before)
             if Time.now.utc < not_before
               return soft ? false : validation_error("Current time is earlier than NotBefore condition")
             end
           end
 
-          if not_on_or_after = parse_time(document.conditions_not_on_or_after)
+          if not_on_or_after = parse_time(security_token_content.conditions_not_on_or_after)
             if Time.now.utc >= not_on_or_after
               return soft ? false : validation_error("Current time is on or after NotOnOrAfter condition")
             end
@@ -124,12 +117,12 @@ module OmniAuth
           string.gsub(/^\s+/, '').gsub(/\s+$/, '')
         end
 
-        def xpath(path)
-          REXML::XPath.first(document, path, { "p" => PROTOCOL, "a" => ASSERTION })
-        end
+        # def xpath(path)
+        #   REXML::XPath.first(document, path, { "p" => PROTOCOL, "a" => ASSERTION })
+        # end
 
         def signed_element_id
-          doc_id = document.signed_element_id
+          doc_id = security_token_content.signed_element_id
           doc_id[1, doc_id.size]
         end
       end
