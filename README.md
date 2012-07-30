@@ -16,7 +16,7 @@ Use the SAML strategy as a middleware in your application:
 
 ```ruby
 require 'omniauth'
-use OmniAuth::Strategies::SAML,
+use OmniAuth::Strategies::SAML_RSTR,
   :assertion_consumer_service_url => "consumer_service_url",
   :issuer                         => "issuer",
   :idp_sso_target_url             => "idp_sso_target_url",
@@ -30,14 +30,14 @@ or in your Rails application:
 in `Gemfile`:
 
 ```ruby
-gem 'omniauth-saml'
+gem 'omniauth-saml-rstr'
 ```
 
 and in `config/initializers/omniauth.rb`:
 
 ```ruby
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :saml,
+  provider :saml_rstr,
     :assertion_consumer_service_url => "consumer_service_url",
     :issuer                         => "rails-application",
     :idp_sso_target_url             => "idp_sso_target_url",
