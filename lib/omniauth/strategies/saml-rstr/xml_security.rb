@@ -99,14 +99,13 @@ module OmniAuth
             canon_string =  info_element.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0)
             sig  = Base64.decode64(signature)
 
+            puts "verification passed = " +  certificate.public_key.verify(OpenSSL::Digest::SHA256.new, sig, canon_string).to_s
 
-            puts "verify = " +  certificate.public_key.verify(OpenSSL::Digest::SHA256.new, sig, canon_string).to_s
-
-            
             if !certificate.public_key.verify(OpenSSL::Digest::SHA256.new, sig, canon_string)
-              raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new("Signature validation error")
+              return soft ? false : (raise OmniAuth::Strategies::SAML::ValidationError.new("Key validation error"))
             end
-
+            
+            return true
           end
 
           private
