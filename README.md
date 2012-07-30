@@ -1,12 +1,13 @@
 # OmniAuth SAML
 
-A generic SAML strategy for OmniAuth.
+A generic SAML strategy for OmniAuth integration with ADFS 2.0.
 
-https://github.com/PracticallyGreen/omniauth-saml
+https://github.com/highgroove/omniauth-saml-rstr
 
 ## Requirements
 
 * [OmniAuth](http://www.omniauth.org/) 1.0+
+* nokogiri
 * Ruby 1.9.2
 
 ## Usage
@@ -62,7 +63,7 @@ end
   over the fingerprint option below. This option or `:idp_cert_fingerprint` must
   be present.
 
-* `:idp_cert_fingerprint` - The SHA1 fingerprint of the certificate, e.g.
+* `:idp_cert_fingerprint` - The SHA256 fingerprint of the certificate, e.g.
   "90:CC:16:F0:8D:...". This is provided from the identity provider when setting up
   the relationship. This option or `:idp_cert` must be present.
 
@@ -74,11 +75,14 @@ end
 
 ## Authors
 
-Authored by Raecoo Cao, Todd W Saxton, Ryan Wilcox, Rajiv Aaron Manglani, and Steven Anderson.
+Authored by Josh Skeen [www.joshskeen.com]. 
+Based on the work of Raecoo Cao, Todd W Saxton, Ryan Wilcox, Rajiv Aaron Manglani, and Steven Anderson.
 
-Maintained by [Rajiv Aaron Manglani](http://www.rajivmanglani.com/).
+<!-- Maintained by [Rajiv Aaron Manglani](http://www.rajivmanglani.com/). -->
 
 ## License
+
+Copyright (c) 2012 Highgroove Studios [http://www.highgroove.com]
 
 Copyright (c) 2011-2012 [Practically Green, Inc.](http://www.practicallygreen.com/).  
 All rights reserved. Released under the MIT license.
