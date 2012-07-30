@@ -58,7 +58,7 @@ module OmniAuth
           end
 
           def info_element
-            @xml.at_xpath("//ds:SignedInfo", {"ds" => DSIG}).text
+            @xml.at_xpath("//ds:SignedInfo", {"ds" => DSIG})
           end
 
           def name_identifier
@@ -84,25 +84,18 @@ module OmniAuth
           #validate the response fingerprint matches the plugin fingerprint
           #validate the certificate signature matches the signature generated from signing the certificate's SignedInfo node
           def validate(idp_cert_fingerprint, soft = true)
-            # if idp_cert
-            #   decoded_cert_text = Base64.decode64(idp_cert)
-            # else
-            #   decoded_cert_text = Base64.decode64(self.x509_cert)
-            # end
-            puts "cert fingerprint: " + idp_cert_fingerprint
-            # base64_cert = self.elements["//ds:X509Certificate"].text
             cert_text   = Base64.decode64(x509_cert)
 
             certificate = OpenSSL::X509::Certificate.new(cert_text)
-            fingerprint = Digest::SHA1.hexdigest(cert.to_der)
-            
-            # if fingerprint != idp_cert_fingerprint.gsub(/[^a-zA-Z0-9]/,"").downcase
+            fingerprint = Digest::SHA1.hexdigest(certificate.to_der)
 
             if !fingerprint == idp_cert_fingerprint.gsub(/[^a-zA-Z0-9]/,"").downcase
               raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new("Key validation error")
             end
+
             canon_string =  info_element.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0)
             sig  = Base64.decode64(signature)
+            
             if !certificate.public_key.verify(OpenSSL::Digest::SHA256.new, sig, canon_string)
               raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new("Signature validation error")
             end

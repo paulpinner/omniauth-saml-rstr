@@ -14,6 +14,7 @@ describe OmniAuth::Strategies::SAML_RSTR, :type => :strategy do
   include OmniAuth::Test::StrategyTestCase
 
   let(:auth_hash){ last_request.env['omniauth.auth'] }
+  
   let(:saml_options) do
     {
       :assertion_consumer_service_url => "http://localhost:3000/auth/saml_rstr/callback",
@@ -66,56 +67,56 @@ describe OmniAuth::Strategies::SAML_RSTR, :type => :strategy do
       it { should fail_with(:invalid_ticket) }
     end
 
-    # context "when there is no name id in the XML" do
-    #   before :each do
-    #     post_xml :no_name_id
-    #   end
+    context "when there is no name id in the XML" do
+      before :each do
+        post_xml :no_name_id
+      end
 
-    #   it { should fail_with(:invalid_ticket) }
-    # end
+      it { should fail_with(:invalid_ticket) }
+    end
 
-    # context "when the fingerprint is invalid" do
-    #   before :each do
-    #     saml_options[:idp_cert_fingerprint] = "E6:87:89:FB:F2:5F:CD:B0:31:32:7E:05:44:84:53:B1:EC:4E:3F:FB"
-    #     post_xml
-    #   end
+    context "when the fingerprint is invalid" do
+      before :each do
+        saml_options[:idp_cert_fingerprint] = "E6:87:89:FB:F2:5F:CD:B0:31:32:7E:05:44:84:53:B1:EC:4E:3F:FB"
+        post_xml
+      end
 
-    #   it { should fail_with(:invalid_ticket) }
-    # end
+      it { should fail_with(:invalid_ticket) }
+    end
 
-    # context "when the digest is invalid" do
-    #   before :each do
-    #     post_xml :digest_mismatch
-    #   end
+    context "when the digest is invalid" do
+      before :each do
+        post_xml :digest_mismatch
+      end
 
-    #   it { should fail_with(:invalid_ticket) }
-    # end
+      it { should fail_with(:invalid_ticket) }
+    end
 
-    # context "when the signature is invalid" do
-    #   before :each do
-    #     post_xml :invalid_signature
-    #   end
+    context "when the signature is invalid" do
+      before :each do
+        post_xml :invalid_signature
+      end
 
-    #   it { should fail_with(:invalid_ticket) }
-    # end
+      it { should fail_with(:invalid_ticket) }
+    end
 
-    # context "when the time is before the NotBefore date" do
-    #   before :each do
-    #     Time.stub(:now).and_return(Time.new(2000, 3, 8, 16, 25, 00, 0))
-    #     post_xml
-    #   end
+    context "when the time is before the NotBefore date" do
+      before :each do
+        Time.stub(:now).and_return(Time.new(2000, 3, 8, 16, 25, 00, 0))
+        post_xml
+      end
 
-    #   it { should fail_with(:invalid_ticket) }
-    # end
+      it { should fail_with(:invalid_ticket) }
+    end
 
-    # context "when the time is after the NotOnOrAfter date" do
-    #   before :each do
-    #     Time.stub(:now).and_return(Time.new(3000, 3, 8, 16, 25, 00, 0))
-    #     post_xml
-    #   end
+    context "when the time is after the NotOnOrAfter date" do
+      before :each do
+        Time.stub(:now).and_return(Time.new(3000, 3, 8, 16, 25, 00, 0))
+        post_xml
+      end
 
-    #   it { should fail_with(:invalid_ticket) }
-    # end
+      it { should fail_with(:invalid_ticket) }
+    end
 
 
   end
