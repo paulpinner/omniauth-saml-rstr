@@ -26,6 +26,10 @@ module OmniAuth
           response.settings = options
 
           @name_id  = response.name_id
+
+          puts "response = " + response.inspect
+          puts "name id = " + @name_id
+
           @attributes = response.attributes
 
           return fail!(:invalid_ticket, OmniAuth::Error.new('Invalid SAML_RSTR Ticket')) if @name_id.nil? || @name_id.empty? || !response.valid?
