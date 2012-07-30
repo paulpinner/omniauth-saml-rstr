@@ -84,6 +84,9 @@ module OmniAuth
           #validate the response fingerprint matches the plugin fingerprint
           #validate the certificate signature matches the signature generated from signing the certificate's SignedInfo node
           def validate(idp_cert_fingerprint, soft = true)
+
+            puts "validate"
+
             cert_text   = Base64.decode64(x509_cert)
 
             certificate = OpenSSL::X509::Certificate.new(cert_text)
@@ -95,6 +98,10 @@ module OmniAuth
 
             canon_string =  info_element.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0)
             sig  = Base64.decode64(signature)
+
+
+            puts "verify = " +  certificate.public_key.verify(OpenSSL::Digest::SHA256.new, sig, canon_string).to_s
+
             
             if !certificate.public_key.verify(OpenSSL::Digest::SHA256.new, sig, canon_string)
               raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new("Signature validation error")
