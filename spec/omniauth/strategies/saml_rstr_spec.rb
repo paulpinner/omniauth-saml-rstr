@@ -13,6 +13,7 @@ end
 describe OmniAuth::Strategies::SAML_RSTR, :type => :strategy do
   include OmniAuth::Test::StrategyTestCase
 
+  let(:invalid_ticket){ Exception }
   let(:auth_hash){ last_request.env['omniauth.auth'] }
   
   let(:saml_options) do
