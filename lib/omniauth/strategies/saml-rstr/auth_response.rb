@@ -39,7 +39,7 @@ module OmniAuth
         # When this user session should expire at latest
         def session_expires_at
            @expires_at ||= begin
-             parse_time(self.security_token_content.conditions_not_on_or_after)
+             parse_time(security_token_content.conditions_not_on_or_after)
            end
         end
 
@@ -47,8 +47,8 @@ module OmniAuth
         def conditions
           @conditions ||= begin
              {
-              :before =>  self.security_token_content.conditions_before,
-              :not_on_or_after => self.security_token_content.conditions_not_on_or_after
+              :before =>  security_token_content.conditions_before,
+              :not_on_or_after => security_token_content.conditions_not_on_or_after
              }
           end
         end
@@ -60,10 +60,7 @@ module OmniAuth
         end
 
         def validate(soft = true)
-           # validate_response_state(soft) &&
-           # validate_conditions(soft)     &&
-           status = security_token_content.validate(get_fingerprint, soft)
-           puts "status = " + status.to_s
+           status = validate_response_state(soft) && security_token_content.validate(get_fingerprint, soft)
            return status
         end
 
@@ -109,6 +106,8 @@ module OmniAuth
 
           true
         end
+        
+        private
 
         def parse_time(attribute)
             Time.parse(attribute)
@@ -118,10 +117,6 @@ module OmniAuth
           return string unless string
           string.gsub(/^\s+/, '').gsub(/\s+$/, '')
         end
-
-        # def xpath(path)
-        #   REXML::XPath.first(document, path, { "p" => PROTOCOL, "a" => ASSERTION })
-        # end
 
         def signed_element_id
           doc_id = security_token_content.signed_element_id
