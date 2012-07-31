@@ -82,7 +82,8 @@ Based on the work of Raecoo Cao, Todd W Saxton, Ryan Wilcox, Rajiv Aaron Manglan
 
 ## License
 
-Copyright (c) 2012 Highgroove Studios [http://www.highgroove.com]
+Copyright (c) 2012 Apangea 
+Developed at Highgroove Studios [http://www.highgroove.com]
 
 Copyright (c) 2011-2012 [Practically Green, Inc.](http://www.practicallygreen.com/).  
 All rights reserved. Released under the MIT license.
