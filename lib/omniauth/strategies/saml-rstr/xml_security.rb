@@ -90,17 +90,17 @@ module OmniAuth
             certificate = OpenSSL::X509::Certificate.new(cert_text)
             fingerprint = Digest::SHA1.hexdigest(certificate.to_der)
 
-            if !fingerprint == idp_cert_fingerprint.gsub(/[^a-zA-Z0-9]/,"").downcase
-              raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new("Key validation error")
+            if fingerprint != idp_cert_fingerprint.gsub(/[^a-zA-Z0-9]/,"").downcase
+              raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new("Fingerprint validation error")
             end
 
             canon_string =  info_element.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0)
             sig  = Base64.decode64(signature)
 
             if !certificate.public_key.verify(OpenSSL::Digest::SHA256.new, sig, canon_string)
-              return soft ? false : (raise OmniAuth::Strategies::SAML::ValidationError.new("Key validation error"))
+              return soft ? false : (raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new("Key validation error"))
             end
-            
+
             return true
           end
 
