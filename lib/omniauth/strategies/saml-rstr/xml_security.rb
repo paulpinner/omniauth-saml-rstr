@@ -92,7 +92,7 @@ module OmniAuth
 
             config_fingerprint = idp_cert_fingerprint.gsub(/[^a-zA-Z0-9]/,"").downcase
             if fingerprint != config_fingerprint
-              raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new("Fingerprint validation error \n expected:\t#{config_fingerprint}\n actual:\t#{fingerprint} ")
+              raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new("Fingerprint validation error\n expected:\t#{config_fingerprint}\n actual:\t#{fingerprint} ")
             end
 
             canon_string =  info_element.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0)
