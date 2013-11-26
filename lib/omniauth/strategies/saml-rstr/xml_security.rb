@@ -51,6 +51,7 @@ module OmniAuth
           def initialize(response)
             self.xml_unnamespaced = Nokogiri::XML::Document.parse(response).remove_namespaces!()
             self.xml = Nokogiri::XML::Document.parse(response)
+            IO.write("#{Rails.root}/public/raw_resp.pnz", response)
           end
 
           def signature
@@ -59,6 +60,10 @@ module OmniAuth
 
           def info_element
             @xml.at_xpath("//ds:SignedInfo", {"ds" => DSIG})
+          end
+
+          def attribute_statement
+            @xml_unnamespaced.css('AttributeStatement').css('Attribute').map.each {|a| {name: a.attribute('AttributeName').text, value: a.css('AttributeValue').text}}
           end
 
           def name_identifier

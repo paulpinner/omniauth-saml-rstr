@@ -42,6 +42,7 @@ module OmniAuth
         rescue NameIDMissingOrNil => e
           puts e.message
           puts response.security_token_content.inspect
+          puts "Available Data #{response.response_params}"
           fail!(:missing_data)
         end
       end
