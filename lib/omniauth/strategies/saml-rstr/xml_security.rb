@@ -51,7 +51,6 @@ module OmniAuth
           def initialize(response)
             self.xml_unnamespaced = Nokogiri::XML::Document.parse(response).remove_namespaces!()
             self.xml = Nokogiri::XML::Document.parse(response)
-            IO.write("#{Rails.root}/public/raw_resp.pnz", response)
           end
 
           def signature
