@@ -62,7 +62,9 @@ module OmniAuth
           end
 
           def attribute_statement
-            @xml_unnamespaced.css('AttributeStatement').css('Attribute').map.each {|a| {name: a.attribute('AttributeName').text, value: a.css('AttributeValue').text}}
+            attributes = {}
+            @xml_unnamespaced.css('AttributeStatement').css('Attribute').map.each {|a| attributes[a.attribute('AttributeName').text] = a.css('AttributeValue').text}
+            attributes
           end
 
           def audience
