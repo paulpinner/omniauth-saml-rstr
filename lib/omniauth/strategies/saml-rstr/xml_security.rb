@@ -69,6 +69,10 @@ module OmniAuth
             @xml_unnamespaced.css('Audience').text
           end
 
+          def issuer
+            @xml_unnamespaced.css("Assertion").attribute("Issuer").text
+          end
+
           def name_identifier
             @xml_unnamespaced.css('AttributeStatement').css("NameIdentifier").text
           end

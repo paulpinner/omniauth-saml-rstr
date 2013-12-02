@@ -30,6 +30,7 @@ module OmniAuth
           @name_id  = response.name_id
           @attributes = response.attributes
           @audience = response.audience
+          @issuer = response.issuer
 
           raise InvalidResponseException unless response.valid?
           raise NameIDMissingOrNil, "@name_id nil:\t#{@name_id.nil?}\n@name_id empty:\t#{@name_id.empty?}" if [@name_id.nil?, @name_id.empty?].any?
@@ -52,7 +53,8 @@ module OmniAuth
 
       info do
         {
-          :name  => @name_id
+          :name  => @name_id,
+          :issuer => @issuer,
         }
       end
 

@@ -34,6 +34,10 @@ module OmniAuth
           @security_token_content.audience
         end
 
+        def issuer
+          @security_token_content.issuer
+        end
+
         # The value of the user identifier as designated by the initialization request response
         def name_id
           @security_token_content.name_identifier
