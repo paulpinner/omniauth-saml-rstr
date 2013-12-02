@@ -1,5 +1,5 @@
 module OmniAuth
   module SAML_RSTR
-    VERSION = "0.1.0"
+    VERSION = "0.1.1TTM"
   end
 end
