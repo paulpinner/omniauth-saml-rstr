@@ -65,8 +65,12 @@ module OmniAuth
             @xml_unnamespaced.css('AttributeStatement').css('Attribute').map.each {|a| {name: a.attribute('AttributeName').text, value: a.css('AttributeValue').text}}
           end
 
+          def audience
+            @xml_unnamespaced.css('Audience').text
+          end
+
           def name_identifier
-            @xml_unnamespaced.css("NameIdentifier").text
+            @xml_unnamespaced.css('AttributeStatement').css("NameIdentifier").text
           end
 
           def conditions_before
