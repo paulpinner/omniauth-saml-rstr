@@ -26,6 +26,18 @@ module OmniAuth
           validate(soft = false)
         end
 
+        def response_params
+          @security_token_content.attribute_statement
+        end
+
+        def audience
+          @security_token_content.audience
+        end
+
+        def issuer
+          @security_token_content.issuer
+        end
+
         # The value of the user identifier as designated by the initialization request response
         def name_id
           @security_token_content.name_identifier
@@ -33,7 +45,7 @@ module OmniAuth
 
         # A hash of all the attributes with the response. Assuming there is only one value for each key
         def attributes
-          { :userEmailID => @security_token_content.name_identifier}
+          @security_token_content.attribute_statement
         end
 
         # When this user session should expire at latest
