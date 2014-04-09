@@ -1,5 +1,7 @@
 # OmniAuth SAML-RSTR
 
+![](https://raw.githubusercontent.com/wiki/thinkthroughmath/omniauth-saml-rstr/saml-rstr.png)
+
 An XML & SAML strategy for OmniAuth integration with ADFS 2.0.
 
 https://github.com/highgroove/omniauth-saml-rstr
