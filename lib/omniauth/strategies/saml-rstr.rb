@@ -37,17 +37,16 @@ module OmniAuth
           return fail!(:invalid_ticket, OmniAuth::Error.new('Invalid SAML_RSTR Ticket')) if @name_id.nil? || @name_id.empty? || !response.valid?
           super
         rescue ArgumentError => e
-          OmniAuth.logger.send(:error, "#{e.message}")
-          OmniAuth.logger.send(:error, "#{e.backtrace}")
-          fail!(:invalid_ticket, OmniAuth::Error.new('Invalid SAML_RSTR Response'))
+          log :info, "#{e.message}"
+          fail!(:invalid_ticket, OmniAuth::Error.new("Invalid SAML_RSTR Response \n #{e.backtrace}"))
         rescue InvalidResponseException => e
-          OmniAuth.logger.send(:error, "#{e.message}")
-          OmniAuth.logger.send(:error, "#{e.backtrace}")
+          log :info, "#{e.message}"
+          log :info, "#{e.backtrace}"
           fail!(:invalid_response)
         rescue NameIDMissingOrNil => e
-          OmniAuth.logger.send(:error, "#{e.message}")
-          OmniAuth.logger.send(:error, "#{response.security_token_content.inspect}")
-          OmniAuth.logger.send(:error, "Available Data #{response.response_params}")
+          log :info, "#{e.message}"
+          log :info, "#{response.security_token_content.inspect}"
+          log :info, "Available Data #{response.response_params}"
           fail!(:missing_data)
         end
       end
