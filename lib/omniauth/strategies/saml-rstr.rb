@@ -36,15 +36,18 @@ module OmniAuth
           raise NameIDMissingOrNil, "@name_id nil:\t#{@name_id.nil?}\n@name_id empty:\t#{@name_id.empty?}" if [@name_id.nil?, @name_id.empty?].any?
           return fail!(:invalid_ticket, OmniAuth::Error.new('Invalid SAML_RSTR Ticket')) if @name_id.nil? || @name_id.empty? || !response.valid?
           super
-        rescue ArgumentError => e   
+        rescue ArgumentError => e
+          OmniAuth.logger.send(:error, "#{e.message}")
+          OmniAuth.logger.send(:error, "#{e.backtrace}")
           fail!(:invalid_ticket, OmniAuth::Error.new('Invalid SAML_RSTR Response'))
         rescue InvalidResponseException => e
-          puts e.message
+          OmniAuth.logger.send(:error, "#{e.message}")
+          OmniAuth.logger.send(:error, "#{e.backtrace}")
           fail!(:invalid_response)
         rescue NameIDMissingOrNil => e
-          puts e.message
-          puts response.security_token_content.inspect
-          puts "Available Data #{response.response_params}"
+          OmniAuth.logger.send(:error, "#{e.message}")
+          OmniAuth.logger.send(:error, "#{response.security_token_content.inspect}")
+          OmniAuth.logger.send(:error, "Available Data #{response.response_params}")
           fail!(:missing_data)
         end
       end
