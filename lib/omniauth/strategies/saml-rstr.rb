@@ -38,14 +38,14 @@ module OmniAuth
           super
         rescue ArgumentError => e
           log :info, "#{e.message}"
-          fail!(:invalid_ticket, OmniAuth::Error.new("Invalid SAML_RSTR Response \n #{e.backtrace}"))
+          fail!(:invalid_arguments, OmniAuth::Error.new("Invalid SAML_RSTR Response \n #{e.backtrace}"))
         rescue InvalidResponseException => e
           log :info, "#{e.message}"
           log :info, "#{e.backtrace}"
           fail!(:invalid_response)
         rescue NameIDMissingOrNil => e
           log :info, "#{e.message}"
-          log :info, "#{response.security_token_content.inspect}"
+          log :info, "#{response.security_token_content.inspect}" 
           log :info, "Available Data #{response.response_params}"
           fail!(:missing_data)
         end
