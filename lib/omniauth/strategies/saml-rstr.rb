@@ -38,12 +38,10 @@ module OmniAuth
           super
         rescue ArgumentError => e
           log :info, "#{e.message}"
-          IO.write("#{Rails.root}/public/argument_error.pnz", "#{e.message} \n #{e.backtrace}")
           fail!(:invalid_arguments, OmniAuth::Error.new("Invalid SAML_RSTR Response \n #{e.backtrace}"))
         rescue InvalidResponseException => e
           log :info, "#{e.message}"
           log :info, "#{e.backtrace}"
-          IO.write("#{Rails.root}/public/invalid_response.pnz", "#{e.message} \n #{e.backtrace}")
           fail!(:invalid_response)
         rescue NameIDMissingOrNil => e
           log :info, "#{e.message}"
