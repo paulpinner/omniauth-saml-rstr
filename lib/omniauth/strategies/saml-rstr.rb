@@ -13,7 +13,8 @@ module OmniAuth
       autoload :ValidationError,  'omniauth/strategies/saml-rstr/validation_error'
       autoload :XMLSecurity,      'omniauth/strategies/saml-rstr/xml_security'
 
-      option :name_identifier_format, "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+      option :name_identifier_format, 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
+      option :callback_response_key, 'wresult'
 
       def request_phase
         request = OmniAuth::Strategies::SAML_RSTR::AuthRequest.new
@@ -24,8 +25,7 @@ module OmniAuth
       def callback_phase
 
         begin
-          response_key = settings.callback_response_key || 'wresult'
-          response = OmniAuth::Strategies::SAML_RSTR::AuthResponse.new(request.params[response_key])
+          response = OmniAuth::Strategies::SAML_RSTR::AuthResponse.new(request.params[options.callback_response_key])
           response.settings = options
           
           @name_id  = response.name_id
