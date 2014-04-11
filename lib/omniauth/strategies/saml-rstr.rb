@@ -24,7 +24,8 @@ module OmniAuth
       def callback_phase
 
         begin
-          response = OmniAuth::Strategies::SAML_RSTR::AuthResponse.new(request.params['wresult'])
+          response_key = settings.callback_response_key || 'wresult'
+          response = OmniAuth::Strategies::SAML_RSTR::AuthResponse.new(request.params[response_key])
           response.settings = options
           
           @name_id  = response.name_id
