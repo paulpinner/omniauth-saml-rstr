@@ -38,7 +38,7 @@ module OmniAuth
           super
         rescue ArgumentError => e
           log :info, "#{e.message}"
-          fail!(:invalid_arguments, OmniAuth::Error.new("Invalid SAML_RSTR Response \n #{e.backtrace}"))
+          fail!(:invalid_arguments, OmniAuth::Error.new("Invalid SAML_RSTR Response #{e.message} #{request.params.inspect}"))
         rescue InvalidResponseException => e
           log :info, "#{e.message}"
           log :info, "#{e.backtrace}"
