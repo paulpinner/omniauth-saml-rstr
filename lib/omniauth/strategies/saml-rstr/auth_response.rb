@@ -13,13 +13,21 @@ module OmniAuth
 
         def initialize(response, options = {})
           raise ArgumentError.new("Response cannot be nil") if response.nil?
-          self.options  = options
-          self.response = response
-          self.security_token_content = OmniAuth::Strategies::SAML_RSTR::XMLSecurity::SecurityTokenResponseContent.new(response)
+          @options  = options
+          @response = auto_decode_base64(response)
+          @security_token_content = OmniAuth::Strategies::SAML_RSTR::XMLSecurity::SecurityTokenResponseContent.new(@response)
         end
 
         def valid?
           validate(soft = true)
+        end
+
+        def auto_decode_base64(resp)
+          decoded = Base64.decode64(resp)
+          re_encoded = Base64.encode64(decoded)
+          return decoded if resp == re_encoded
+          resp
+
         end
 
         def validate!
