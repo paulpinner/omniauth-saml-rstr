@@ -23,11 +23,8 @@ module OmniAuth
         end
 
         def auto_decode_base64(resp)
-          decoded = Base64.decode64(resp)
-          re_encoded = Base64.encode64(decoded)
-          return decoded if resp == re_encoded
+          return Base64.strict_decode64(resp) if resp == Base64.strict_encode64(Base64.strict_decode64(resp))
           resp
-
         end
 
         def validate!
