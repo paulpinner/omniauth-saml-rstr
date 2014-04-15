@@ -10,6 +10,7 @@ https://github.com/highgroove/omniauth-saml-rstr
 
 * [OmniAuth](http://www.omniauth.org/) 1.0+
 * nokogiri 1.5
+* SAML 1.1
 * Ruby 1.9.2
 
 ## Usage
