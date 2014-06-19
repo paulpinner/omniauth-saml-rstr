@@ -14,7 +14,7 @@ module OmniAuth
       autoload :XMLSecurity,      'omniauth/strategies/saml-rstr/xml_security'
 
       option :name_identifier_format, 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
-      option :callback_response_key, 'wresult'
+      option :callback_response_key, 'SAMLResponse'
 
       def request_phase
         request = OmniAuth::Strategies::SAML_RSTR::AuthRequest.new
