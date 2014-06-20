@@ -63,7 +63,7 @@ module OmniAuth
 
           def attribute_statement
             attributes = {}
-            @xml_unnamespaced.css('AttributeStatement').css('Attribute').map.each {|a| attributes[a.attribute('AttributeName').text] = a.css('AttributeValue').text}
+            @xml_unnamespaced.css('AttributeStatement').css('Attribute').map.each {|a| attributes[a.attribute('Name').text] = a.css('AttributeValue').text}
             attributes
           end
 
@@ -72,11 +72,13 @@ module OmniAuth
           end
 
           def issuer
-            @xml_unnamespaced.css("Assertion").attribute("Issuer").text
+            @xml_unnamespaced.css("Assertion").css("Issuer").text
           end
 
           def name_identifier
-            @xml_unnamespaced.css('AttributeStatement').css("NameIdentifier").text
+
+            @xml_unnamespaced.css('Subject').text
+            
           end
 
           def conditions_before
