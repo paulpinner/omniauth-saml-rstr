@@ -1,71 +1,145 @@
-require 'omniauth'
+require "time"
 
 module OmniAuth
   module Strategies
     class SAML_RSTR
-      include OmniAuth::Strategy
+      class AuthResponse
 
-      class InvalidResponseException < Exception; end
-      class NameIDMissingOrNil < Exception; end
+        ASSERTION = "urn:oasis:names:tc:SAML:2.0:assertion"
+        PROTOCOL  = "urn:oasis:names:tc:SAML:2.0:protocol"
+        DSIG      = "http://www.w3.org/2000/09/xmldsig#"
 
-      autoload :AuthRequest,      'omniauth/strategies/saml-rstr/auth_request'
-      autoload :AuthResponse,     'omniauth/strategies/saml-rstr/auth_response'
-      autoload :ValidationError,  'omniauth/strategies/saml-rstr/validation_error'
-      autoload :XMLSecurity,      'omniauth/strategies/saml-rstr/xml_security'
+        attr_accessor :options, :response, :security_token_content, :settings
 
-      option :name_identifier_format, '' #'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
-      option :callback_response_key, 'SAMLResponse'
+        def initialize(response, options = {})
+          raise ArgumentError.new("Response cannot be nil") if response.nil?
+          @options  = options
+          @response = auto_decode_base64(response)
+          @security_token_content = OmniAuth::Strategies::SAML_RSTR::XMLSecurity::SecurityTokenResponseContent.new(@response)
+        end
 
-      def request_phase
-        request = OmniAuth::Strategies::SAML_RSTR::AuthRequest.new
-        req = request.create(options)
-        redirect(req)
-      end
+        def valid?
+          validate(soft = true)
+        end
 
-      def callback_phase
+        def auto_decode_base64(resp)
+          return Base64.strict_decode64(resp) if resp == Base64.strict_encode64(Base64.strict_decode64(resp))
+          resp
+        end
 
-        begin
-          response = OmniAuth::Strategies::SAML_RSTR::AuthResponse.new(request.params[options.callback_response_key])
-          response.settings = options
-          
-          @name_id  = response.name_id
-          @attributes = response.attributes
-          @audience = response.audience
-          @issuer = response.issuer
-          
-          raise InvalidResponseException unless response.valid?
-          raise NameIDMissingOrNil, "@name_id nil:\t#{@name_id.nil?}\n@name_id empty:\t#{@name_id.empty?}" if [@name_id.nil?, @name_id.empty?].any?
-          return fail!(:invalid_ticket, OmniAuth::Error.new('Invalid SAML_RSTR Ticket')) if @name_id.nil? || @name_id.empty? || !response.valid?
-          super
-        rescue ArgumentError => e
-          log :info, "#{e.message}"
-          fail!(:invalid_arguments, OmniAuth::Error.new("Invalid SAML_RSTR Response #{e.message} #{request.params.inspect}"))
-        rescue InvalidResponseException => e
-          log :info, "#{e.message}"
-          log :info, "#{e.backtrace}"
-          fail!(:invalid_response)
-        rescue NameIDMissingOrNil => e
-          log :info, "#{e.message}"
-          log :info, "#{response.security_token_content.inspect}" 
-          log :info, "Available Data #{response.response_params}"
-          fail!(:missing_data)
+        def validate!
+          validate(soft = false)
+        end
+
+        def response_params
+          @security_token_content.attribute_statement
+        end
+
+        def audience
+          @security_token_content.audience
+        end
+
+        def issuer
+          @security_token_content.issuer
+        end
+
+        # The value of the user identifier as designated by the initialization request response
+        def name_id
+          @security_token_content.name_identifier
+        end
+
+        # A hash of all the attributes with the response. Assuming there is only one value for each key
+        def attributes
+          @security_token_content.attribute_statement
+        end
+
+        # When this user session should expire at latest
+        def session_expires_at
+           @expires_at ||= begin
+             parse_time(security_token_content.conditions_not_on_or_after)
+           end
+        end
+
+        # Conditions (if any) for the assertion to run
+        def conditions
+          @conditions ||= begin
+             {
+              :before =>  security_token_content.conditions_before,
+              :not_on_or_after => security_token_content.conditions_not_on_or_after
+             }
+          end
+        end
+
+        private
+
+        def validation_error(message)
+          raise OmniAuth::Strategies::SAML_RSTR::ValidationError.new(message)
+        end
+
+        def validate(soft = true)
+           status = validate_response_state(soft) && security_token_content.validate(get_fingerprint, soft)
+           return status
+        end
+
+        def validate_response_state(soft = true)
+          if response.empty?
+            return soft ? false : validation_error("Blank response")
+          end
+
+          if settings.nil?
+            return soft ? false : validation_error("No settings on response")
+          end
+
+          if settings.idp_cert_fingerprint.nil? && settings.idp_cert.nil?
+            return soft ? false : validation_error("No fingerprint or certificate on settings")
+          end
+          true
+        end
+
+        def get_fingerprint
+          if settings.idp_cert
+            cert = OpenSSL::X509::Certificate.new(settings.idp_cert.gsub(/^ +/, ''))
+            Digest::SHA1.hexdigest(cert.to_der).upcase.scan(/../).join(":")
+          else
+            settings.idp_cert_fingerprint
+          end
+        end
+
+        def validate_conditions(soft = true)
+          return true if conditions.nil?
+          return true if options[:skip_conditions]
+
+          if not_before = parse_time(security_token_content.conditions_before)
+            if Time.now.utc < not_before
+              return soft ? false : validation_error("Current time is earlier than NotBefore condition")
+            end
+          end
+
+          if not_on_or_after = parse_time(security_token_content.conditions_not_on_or_after)
+            if Time.now.utc >= not_on_or_after
+              return soft ? false : validation_error("Current time is on or after NotOnOrAfter condition")
+            end
+          end
+
+          true
+        end
+        
+        private
+
+        def parse_time(attribute)
+            Time.parse(attribute)
+        end
+
+        def strip(string)
+          return string unless string
+          string.gsub(/^\s+/, '').gsub(/\s+$/, '')
+        end
+
+        def signed_element_id
+          doc_id = security_token_content.signed_element_id
+          doc_id[1, doc_id.size]
         end
       end
-
-      uid { @name_id }
-
-      info do
-        {
-          :name  => @name_id,
-          :issuer => @issuer,
-        }
-      end
-
-      extra { { :raw_info => @attributes, :audience => @audience} }
-
     end
   end
 end
-
-# OmniAuth.config.add_camelization 'saml', 'SAML'
-OmniAuth.config.add_camelization 'saml_rstr', 'SAML_RSTR'
