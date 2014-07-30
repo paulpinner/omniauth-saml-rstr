@@ -13,7 +13,7 @@ module OmniAuth
       autoload :ValidationError,  'omniauth/strategies/saml-rstr/validation_error'
       autoload :XMLSecurity,      'omniauth/strategies/saml-rstr/xml_security'
 
-     # option :name_identifier_format, 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
+      option :name_identifier_format, '' #'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
       option :callback_response_key, 'SAMLResponse'
 
       def request_phase
